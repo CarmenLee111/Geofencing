@@ -16,7 +16,7 @@ class UtilsTest(unittest.TestCase):
 
     def test_point_in_poly(self):
         # Convex U shape facing west
-        vertices = [0, 0, 0, 2, 3, 2, 3, 0, 2, 0, 2, 1, 1, 1, 1, 0]
+        vertices = [[0, 0], [0, 2], [3, 2], [3, 0], [2, 0], [2, 1], [1, 1], [1, 0]]
         point1 = [1.5, 1.5]     # inside vertical area
         self.assertTrue(_point_in_poly(point1, vertices))
         self.assertTrue(_point_in_poly(point1, vertices, 'rc'))
@@ -34,9 +34,18 @@ class UtilsTest(unittest.TestCase):
         self.assertTrue(_point_in_poly(point4, vertices, 'rc'))
 
     def test_import_file(self):
-        vertices = _import_file("./data/SICS.txt")
+        # TODO: mock the input files
+        name, vertices = _import_file("./data/SICS.txt")
+        self.assertEqual("site", name)
         self.assertTrue(type(vertices) == list)
         self.assertTrue(len(vertices) > 0)
 
+        name1, vertices1 = _import_file("./data/sics.json")
+        self.assertTrue(type(name1) == str)
+        self.assertTrue(name1 == 'sics')
+        self.assertTrue(type(vertices1) == list)
+        self.assertTrue(len(vertices1) > 0)
+
         self.assertRaises(FileNotFoundError, lambda: _import_file("/path-not-exist"))
         self.assertRaises(ValueError, lambda: _import_file('./data/bad.txt'))
+        self.assertRaises(ValueError, lambda: _import_file('./data/map.png'))

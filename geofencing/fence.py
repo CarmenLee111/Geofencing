@@ -14,10 +14,19 @@ class Fence(object):
             True
     """
 
-    def __init__(self, vs=None):
+    def __init__(self, vs=None, site=""):
+        self._site = site
         self._vertices = []
         if vs:
             self.vertices = vs
+
+    @property
+    def site(self):
+        return self._site
+
+    @site.setter
+    def site(self, site: str):
+        self._site = site
 
     @property
     def vertices(self):
@@ -25,13 +34,12 @@ class Fence(object):
 
     @vertices.setter
     def vertices(self, vs):
-        assert len(vs) >= 6, "polygon need to have at least three vertices"
-        assert len(vs) % 2 == 0, "list must contain latitude, longitude pairs"
+        assert len(vs) >= 3, "polygon need to have at least three vertices"
         self._vertices = vs
 
     def set_vertices_from_file(self, file):
-        self.vertices = _import_file(file)
+        self._site, self.vertices = _import_file(file)
 
     def detect(self, point: list, algo=None):
         assert len(point) == 2, "coordinates must be latitude, longitude"
-        return _point_in_poly(point, self._vertices, algo)
+        return _point_in_poly(point, self.vertices, algo)
