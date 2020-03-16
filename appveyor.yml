@@ -1,0 +1,22 @@
+branches:
+ only:
+  - master
+
+version: "0.0.1.{build}"
+
+environment:
+  matrix:
+
+    - PYTHON_DIR: "C:\\Python36-x64"
+      BLOCK: "0"
+
+    - PYTHON_DIR: "C:\\Python37-x64"
+      BLOCK: "0"
+
+    - PYTHON_DIR: "C:\\Python38-x64"
+      BLOCK: "0"
+
+
+test_script:
+  - python -m unittest -v
+

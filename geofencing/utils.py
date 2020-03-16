@@ -1,10 +1,15 @@
+import json
+from pathlib import Path
+
+
 def _point_in_poly(point: list, vertices: list, algo="wn"):
     """ determine if a point is in the polygon
 
     Args:
         point -- latitude, longitude of the point to test
-        vertices -- defined region [lat0, lon0, lat1, lon1, ...], counter-clock order
-        algo -- default "wn"-winding_number, other option "rc"-ray_casting
+        vertices -- defined region [[lat0, lon0], [lat1, lon1], ...], counter-clock order
+        algo -- "wn"-winding_number, default
+                "rc"-ray_casting
 
     Returns:
         True if the point is inside of the polygon, boundary points undefined
@@ -13,6 +18,50 @@ def _point_in_poly(point: list, vertices: list, algo="wn"):
         return _rc_point_in_poly(point, vertices)
     else:
         return _wn_point_in_poly(point, vertices)
+
+
+def _wn_point_in_poly(point: list, vertices: list):
+    """ determine if a point is in the polygon using winding number algorithm
+
+    Returns:
+        True if the point is inside of the polygon (when wn != 0). Undefined on boundary
+    """
+    wn = 0
+    n = len(vertices)
+
+    for i in range(n):
+        j = (i + 1) % n
+        if vertices[i][0] <= point[0]:
+            if (vertices[j][0] > point[0]) and (
+                    _is_left(*point, *vertices[i], *vertices[j]) > 0):
+                wn += 1
+        else:
+            if (vertices[j][0] <= point[0]) and (
+                    _is_left(*point, *vertices[i], *vertices[j]) < 0):
+                wn -= 1
+    return wn != 0
+
+
+def _rc_point_in_poly(point: list, vertices: list):
+    """ determine if a point is in the polygon using ray casting algorithm
+
+    Returns:
+      True if the point is inside of the polygon. Undefined on the boundary
+    """
+    inside = False
+    n = len(vertices)
+    j = n - 1
+    lat, lon = point
+
+    for i in range(n):
+        if ((vertices[i][0] < lat <= vertices[j][0]
+             or vertices[j][0] < lat <= vertices[i][0])
+                and (vertices[i][1] <= lon or vertices[j][1] <= lon)):
+            k = (lat - vertices[i][0]) / (vertices[j][0] - vertices[i][0])
+            inside ^= (vertices[i][1] + k * (vertices[j][1] - vertices[i][1]) < lon)
+        j = i
+
+    return inside
 
 
 def _is_left(y0, x0, y1, x1, y2, x2):
@@ -31,82 +80,60 @@ def _is_left(y0, x0, y1, x1, y2, x2):
     return (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)
 
 
-def _wn_point_in_poly(point: list, vertices: list):
-    """ determin if a point is in the polygon using winding number algorithm
-
-    Args:
-        point -- latitude, longitude of the point to test
-        vertices -- defined region [lat0, lon0, lat1, lon1, ...], counter-clock order
-
-    Returns:
-        True if the point is inside of the polygon (when wn != 0). Undefined on boundary
-    """
-    wn = 0
-    n = len(vertices) // 2
-
-    for i in range(n):
-        j = (i + 1) % n
-        if vertices[i * 2] <= point[0]:
-            if (vertices[j * 2] > point[0]) and (
-                    _is_left(*point, *vertices[i * 2:i * 2 + 2], *vertices[j * 2:j * 2 + 2]) > 0):
-                wn += 1
-        else:
-            if (vertices[j * 2] <= point[0]) and (
-                    _is_left(*point, *vertices[i * 2:i * 2 + 2], *vertices[j * 2:j * 2 + 2]) < 0):
-                wn -= 1
-    return wn != 0
-
-
-def _rc_point_in_poly(point: list, vertices: list):
-    """ determine if a point is in the polygon using ray casting algorithm
-
-    Args:
-      point -- [latitude, longitude]
-      vertices -- list of vertices of the defined region [lat0, lon0, lat1, lon1, ...]
-
-    Returns:
-      True if the point is inside of the polygon. Undefined on the boundary
-    """
-    inside = False
-    n = len(vertices) // 2
-    j = n - 1
-    lat, lon = point
-
-    for i in range(n):
-        if ((vertices[i * 2] < lat <= vertices[j * 2]
-             or vertices[j * 2] < lat <= vertices[i*2])
-                and (vertices[i*2+1] <= lon or vertices[j*2+1] <= lon)):
-            k = (lat - vertices[i*2]) / (vertices[j*2] - vertices[i*2])
-            inside ^= (vertices[i*2+1] + k * (vertices[j*2+1] - vertices[i*2+1]) < lon)
-        j = i
-
-    return inside
-
-
 def _import_file(file_path):
     """ import coordinates from file
 
     Args:
       file_path -- file path
-        example file:
+        example .txt file:
             59.4048184072506,17.9478923473923
             59.4043815528131,17.9485360775559
             59.404422508156,17.9486433659165
-            59.4044197778013,17.9486621413796
+        example .json file can be created at http://geo.jasparke.net/
+            [
+                {
+                    "name": "sics",
+                    "color": "#6CB1E1",
+                    "id": 0,
+                    "path": [
+                        [
+                            59.4048182070281,
+                            17.9478945561005
+                        ],
+                        [
+                            59.404377257051,
+                            17.9485382862641
+                        ],
+                        [
+                            59.4046025108524,
+                            17.9491310544564
+                        ],
+                        [
+                            59.4046598479445,
+                            17.949050588186
+                        ],
+                    ]
+                }
+            ]
 
     Returns:
-        a list of floats [lat0, lon0, lat1, lon1, ...]
+        name of the site from .json files or "site" as default for .txt files
+        geo coordinates of the vertices [[lat0, lon0], [lat1, lon1], ...]
     """
     try:
         with open(file_path) as file:
-            lines = list(file)
-            vs = []
-            for line in lines:
-                line = line.strip().split(',')
-                for d in line:
-                    vs.append(float(d))
-            return vs
+            if Path(file_path).suffix == '.json':
+                data = json.load(file)[0]
+                return data.get('name'), data.get('path')
+            elif Path(file_path).suffix == '.txt':
+                lines = file.readlines()
+                vertices = []
+                for line in lines:
+                    vertices.append([float(x) for x in line.strip().split(',')])
+                return "site", vertices
+            else:
+                raise ValueError("File type not supported")
     except FileNotFoundError:
         raise
     except ValueError:
-        raise ValueError("File must contain only floats, separated by \',\' and \\n")
+        raise
