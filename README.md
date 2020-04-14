@@ -16,7 +16,7 @@ It is recommended to install it under a python virtual environment
 $ python3 -m venv ~/venv/env_name
 $ source ~/venv/env_name/bin/activate
 (env_name) $ cd geofencing
-(env_name) $ python3 setup.py
+(env_name) $ python3 setup.py install
 ```
 
 Verify the installation in a python console
