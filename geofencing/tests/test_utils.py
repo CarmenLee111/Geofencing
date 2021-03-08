@@ -1,5 +1,6 @@
 import unittest
 from ..utils import _is_left, _point_in_poly, _import_file
+import numpy as np
 
 
 class UtilsTest(unittest.TestCase):
@@ -16,7 +17,7 @@ class UtilsTest(unittest.TestCase):
 
     def test_point_in_poly(self):
         # Convex U shape facing west
-        vertices = [[0, 0], [0, 2], [3, 2], [3, 0], [2, 0], [2, 1], [1, 1], [1, 0]]
+        vertices = np.array([[0, 0], [0, 2], [3, 2], [3, 0], [2, 0], [2, 1], [1, 1], [1, 0]])
         point1 = [1.5, 1.5]     # inside vertical area
         self.assertTrue(_point_in_poly(point1, vertices))
         self.assertTrue(_point_in_poly(point1, vertices, 'rc'))
