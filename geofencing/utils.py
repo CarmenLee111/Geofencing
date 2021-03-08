@@ -17,6 +17,8 @@ def _point_in_poly(point: list, vertices: list, algo="wn"):
     """
     if algo == 'rc':
         return _rc_point_in_poly(point, vertices)
+    if algo == 'rc_vec':
+        return _rc_vectorize(point, vertices)
     if algo == 'wn_vec':
         return _wn_vectorize(point, vertices)
     else:
@@ -77,6 +79,26 @@ def _rc_point_in_poly(point: list, vertices: list):
             inside ^= (vertices[i][1] + k * (vertices[j][1] - vertices[i][1]) < lon)
         j = i
 
+    return inside
+
+
+def _rc_vectorize(point: list, vertices: list):
+    inside = False
+    n = len(vertices)
+
+    dxi = vertices[:, 0] - point[0]
+    dyi = vertices[:, 1] - point[1]
+
+    dyj, dxj = np.roll(dyi, -1), np.roll(dxi, -1)
+
+    xi, yi = vertices[:, 0], vertices[:, 1]
+    xj, yj = np.roll(xi, -1), np.roll(yi, -1)
+
+    indicators = (dyi * dyj > 0) * (
+            point[0] < (xi + (point[1] - yi) * np.true_divide(
+        (xj - xi), (yj - yi), where=((yj - yi)) != 0)))
+
+    inside ^= np.logical_xor.reduce(indicators)
     return inside
 
 
