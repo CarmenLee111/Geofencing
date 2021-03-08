@@ -1,4 +1,5 @@
 import json
+import numpy as np
 from pathlib import Path
 
 
@@ -16,6 +17,8 @@ def _point_in_poly(point: list, vertices: list, algo="wn"):
     """
     if algo == 'rc':
         return _rc_point_in_poly(point, vertices)
+    if algo == 'wn_vec':
+        return _wn_vectorize(point, vertices)
     else:
         return _wn_point_in_poly(point, vertices)
 
@@ -39,6 +42,19 @@ def _wn_point_in_poly(point: list, vertices: list):
             if (vertices[j][0] <= point[0]) and (
                     _is_left(*point, *vertices[i], *vertices[j]) < 0):
                 wn -= 1
+    return wn != 0
+
+
+def _wn_vectorize(point: list, vertices: list):
+    wn = 0
+    dx = vertices[:, 0] - point[0]
+    dy = vertices[:, 1] - point[1]
+
+    dy_n, dx_n = np.roll(dy, -1), np.roll(dx, -1)
+    is_left = dx * dy_n - dx_n * dy
+    wn += np.sum((dy <= 0) * (dy_n > 0) * np.sign(is_left))
+    wn += np.sum((dy > 0) * (dy_n <= 0) * np.sign(is_left))
+
     return wn != 0
 
 
@@ -80,7 +96,7 @@ def _is_left(y0, x0, y1, x1, y2, x2):
     return (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)
 
 
-def _import_file(file_path):
+def _import_file(file_path: str):
     """ import coordinates from file
 
     Args:
