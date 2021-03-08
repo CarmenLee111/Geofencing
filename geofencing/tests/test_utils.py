@@ -21,21 +21,25 @@ class UtilsTest(unittest.TestCase):
         point1 = [1.5, 1.5]     # inside vertical area
         self.assertTrue(_point_in_poly(point1, vertices))
         self.assertTrue(_point_in_poly(point1, vertices, 'rc'))
+        self.assertTrue(_point_in_poly(point1, vertices, 'rc_vec'))
         self.assertTrue(_point_in_poly(point1, vertices, 'wn_vec'))
 
         point2 = [1.5, 0.5]     # outside between horizontal areas
         self.assertFalse(_point_in_poly(point2, vertices))
         self.assertFalse(_point_in_poly(point2, vertices, 'rc'))
+        self.assertFalse(_point_in_poly(point2, vertices, 'rc_vec'))
         self.assertFalse(_point_in_poly(point2, vertices, 'wn_vec'))
 
         point3 = [4, 2]         # outside above
         self.assertFalse(_point_in_poly(point3, vertices))
         self.assertFalse(_point_in_poly(point3, vertices, 'rc'))
+        self.assertFalse(_point_in_poly(point3, vertices, 'rc_vec'))
         self.assertFalse(_point_in_poly(point3, vertices, 'wn_vec'))
 
         point4 = [2.5, 0.5]     # inside top horizontal area
         self.assertTrue(_point_in_poly(point4, vertices))
         self.assertTrue(_point_in_poly(point4, vertices, 'rc'))
+        self.assertTrue(_point_in_poly(point4, vertices, 'rc_vec'))
         self.assertTrue(_point_in_poly(point4, vertices, 'wn_vec'))
 
     def test_import_file(self):
