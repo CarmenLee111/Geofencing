@@ -6,14 +6,16 @@ import numpy as np
 class UtilsTest(unittest.TestCase):
 
     def test_is_left(self):
-        points1 = [0, 0, 0, 1, 1, 0]   # origin on the left
-        self.assertTrue(_is_left(*points1) > 0)
+        point = [0, 0]                 # test point, the origin
 
-        points2 = [0, 0, 0, -1, 1, 0]  # origin on the right
-        self.assertTrue(_is_left(*points2) < 0)
+        vi1, vj1 = [0, 1], [1, 0]      # origin on the left
+        self.assertTrue(_is_left(*point, *vi1, *vj1) > 0)
 
-        points3 = [0, 0, 1, 0, -1, 0]  # origin on the line
-        self.assertTrue(_is_left(*points3) == 0)
+        vi2, vj2 = [0, -1], [1, 0]     # origin on the right
+        self.assertTrue(_is_left(*point, *vi2, *vj2) < 0)
+
+        vi3, vj3 = [1, 0], [-1, 0]     # origin on the line
+        self.assertTrue(_is_left(*point, *vi3, *vj3) == 0)
 
     def test_point_in_poly(self):
         # Convex U shape facing west
