@@ -43,7 +43,15 @@ class FenceTest(unittest.TestCase):
         point1 = [1, 0.5]
         self.assertEqual(None, fence.detect(point1))
         self.assertEqual(None, fence.detect(point1, 'rc'))
+        self.assertEqual(None, fence.detect(point1, 'wn'))
+        self.assertEqual(None, fence.detect(point1, 'rc_vectorize'))
+        self.assertEqual(None, fence.detect(point1, 'wn_vectorize'))
+        self.assertEqual(None, fence.detect(point1, 'wn_edge'))
 
         point2 = [1]
         self.assertRaises(AssertionError, lambda: fence.detect(point2))
         self.assertRaises(AssertionError, lambda: fence.detect(point2, 'rc'))
+        self.assertRaises(AssertionError, lambda: fence.detect(point2, 'wn'))
+        self.assertRaises(AssertionError, lambda: fence.detect(point2, 'rc_vectorize'))
+        self.assertRaises(AssertionError, lambda: fence.detect(point2, 'wn_vectorize'))
+        self.assertRaises(AssertionError, lambda: fence.detect(point2, 'wn_edge'))
