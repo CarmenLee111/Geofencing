@@ -1,4 +1,5 @@
 from .utils import _point_in_poly, _import_file
+import numpy as np
 
 
 class Fence(object):
@@ -35,7 +36,7 @@ class Fence(object):
     @vertices.setter
     def vertices(self, vs):
         assert len(vs) >= 3, "polygon need to have at least three vertices"
-        self._vertices = vs
+        self._vertices = np.array(vs)
 
     def set_vertices_from_file(self, file):
         self._site, self.vertices = _import_file(file)
