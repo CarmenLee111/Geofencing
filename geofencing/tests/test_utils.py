@@ -1,9 +1,19 @@
 import unittest
-from ..utils import _is_left, _check_off_edge, _point_in_poly, _import_file
+from ..utils import _is_left, _check_off_edge, _point_in_poly, _import_file, \
+    _wn_point_in_poly, _wn_vectorize, _wn_edge,\
+    _rc_point_in_poly, _rc_vectorize
 import numpy as np
 
 
 class UtilsTest(unittest.TestCase):
+    # Convex U shape facing west
+    vertices = np.array([[0, 0], [0, 2], [3, 2], [3, 0], [2, 0], [2, 1], [1, 1], [1, 0]])
+    point1 = [1.5, 1.5]  # inside vertical area
+    point2 = [1.5, 0.5]  # outside between horizontal areas
+    point3 = [4, 2]      # outside above
+    point4 = [2.5, 0.5]  # inside top horizontal area
+    point5 = [0, 1]      # On edge
+    point6 = [0, 2]      # On vertice
 
     def test_is_left(self):
         point = [0, 0]                 # test point, the origin
@@ -76,6 +86,39 @@ class UtilsTest(unittest.TestCase):
         cross = np.cross(delta_j, delta_i)
         self.assertFalse(_check_off_edge(dot, cross))
 
+    def test_wn_point_in_poly(self):
+        self.assertTrue(_wn_point_in_poly(self.point1, self.vertices))
+        self.assertFalse(_wn_point_in_poly(self.point2, self.vertices))
+        self.assertFalse(_wn_point_in_poly(self.point3, self.vertices))
+        self.assertTrue(_wn_point_in_poly(self.point4, self.vertices))
+
+    def test_wn_vectorize(self):
+        self.assertTrue(_wn_vectorize(self.point1, self.vertices))
+        self.assertFalse(_wn_vectorize(self.point2, self.vertices))
+        self.assertFalse(_wn_vectorize(self.point3, self.vertices))
+        self.assertTrue(_wn_vectorize(self.point4, self.vertices))
+
+    def test_wn_edge(self):
+        self.assertTrue(_wn_edge(self.point1, self.vertices))
+        self.assertFalse(_wn_edge(self.point2, self.vertices))
+        self.assertFalse(_wn_edge(self.point3, self.vertices))
+        self.assertTrue(_wn_edge(self.point4, self.vertices))
+
+    def test_edge_case(self):
+        self.assertFalse(_wn_edge(self.point5, self.vertices))
+        self.assertFalse(_wn_edge(self.point6, self.vertices))
+
+    def test_rc_point_in_poly(self):
+        self.assertTrue(_rc_point_in_poly(self.point1, self.vertices))
+        self.assertFalse(_rc_point_in_poly(self.point2, self.vertices))
+        self.assertFalse(_rc_point_in_poly(self.point3, self.vertices))
+        self.assertTrue(_rc_point_in_poly(self.point4, self.vertices))
+
+    def test_rc_vectorize(self):
+        self.assertTrue(_rc_vectorize(self.point1, self.vertices))
+        self.assertFalse(_rc_vectorize(self.point2, self.vertices))
+        self.assertFalse(_rc_vectorize(self.point3, self.vertices))
+        self.assertTrue(_rc_vectorize(self.point4, self.vertices))
 
     def test_point_in_poly(self):
         # Convex U shape facing west
