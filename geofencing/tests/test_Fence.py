@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch
 from ..fence import Fence
+import numpy as np
 
 
 class FenceTest(unittest.TestCase):
@@ -21,13 +22,13 @@ class FenceTest(unittest.TestCase):
 
     def test_get_vertices(self):
         fence = Fence(self.vs)
-        self.assertEqual(fence.vertices, self.vs)
+        self.assertTrue(np.array_equal(fence.vertices, self.vs))
 
     def test_set_vertices(self):
         fence = Fence(self.vs)
-        vs2 = [1, 1, 2, 0, 0, 0]
+        vs2 = np.array([1, 1, 2, 0, 0, 0])
         fence.vertices = vs2
-        self.assertEqual(fence.vertices, vs2)
+        self.assertTrue(np.array_equal(fence.vertices, vs2))
 
     @patch('geofencing.fence._import_file', return_value=['name', 'someList'])
     def test_vertices_from_file(self, mock_import):
