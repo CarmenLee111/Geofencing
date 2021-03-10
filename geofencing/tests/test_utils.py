@@ -1,5 +1,5 @@
 import unittest
-from ..utils import _is_left, _point_in_poly, _import_file
+from ..utils import _is_left, _check_off_edge, _point_in_poly, _import_file
 import numpy as np
 
 
@@ -17,29 +17,97 @@ class UtilsTest(unittest.TestCase):
         vi3, vj3 = [1, 0], [-1, 0]     # origin on the line
         self.assertTrue(_is_left(*point, *vi3, *vj3) == 0)
 
+    def test_check_edge(self):
+        # Single edge case
+        edge = np.array([[0, 0], [1, 1]])  # coordinate order [y, x]
+
+        point1 = [0, 1]     # Off edge
+        delta1 = edge - point1
+        dot1 = delta1[0] @ delta1[1]
+        cross1 = np.cross(delta1[0], delta1[1])
+        self.assertTrue(_check_off_edge(dot1, cross1))
+
+        point2 = [-1, -1]  # Off edge but on the line
+        delta2 = edge - point2
+        dot2 = delta2[0] @ delta2[1]
+        cross2 = np.cross(delta2[0], delta2[1])
+        self.assertTrue(_check_off_edge(dot2, cross2))
+
+        point3 = [0.5, 0.5]  # Not off edge
+        delta3 = edge - point3
+        dot3 = delta3[0] @ delta3[1]
+        cross3 = np.cross(delta3[0], delta3[1])
+        self.assertFalse(_check_off_edge(dot3, cross3))
+
+        point3 = [1, 1]  # Not off edge and on vertice
+        delta3 = edge - point3
+        dot3 = delta3[0] @ delta3[1]
+        cross3 = np.cross(delta3[0], delta3[1])
+        self.assertFalse(_check_off_edge(dot3, cross3))
+
+        # Polygon case
+        vertices = np.array([[0, 0], [0, 2], [3, 2], [3, 0], [2, 0], [2, 1], [1, 1], [1, 0]])
+
+        point = [0.5, 0.5]         # Off edge
+        delta_i = vertices - point
+        delta_j = np.roll(delta_i, -2)
+        dot = np.einsum('ij,ij->i', delta_i, delta_j)
+        cross = np.cross(delta_j, delta_i)
+        self.assertTrue(_check_off_edge(dot, cross))
+
+        point = [1.5, 0]          # Off edge but on the line with one
+        delta_i = vertices - point
+        delta_j = np.roll(delta_i, -2)
+        dot = np.einsum('ij,ij->i', delta_i, delta_j)
+        cross = np.cross(delta_j, delta_i)
+        self.assertTrue(_check_off_edge(dot, cross))
+
+        point = [0.5, 0]          # On edge
+        delta_i = vertices - point
+        delta_j = np.roll(delta_i, -2)
+        dot = np.einsum('ij,ij->i', delta_i, delta_j)
+        cross = np.cross(delta_j, delta_i)
+        self.assertFalse(_check_off_edge(dot, cross))
+
+        point = [0, 0]          # On vertice
+        delta_i = vertices - point
+        delta_j = np.roll(delta_i, -2)
+        dot = np.einsum('ij,ij->i', delta_i, delta_j)
+        cross = np.cross(delta_j, delta_i)
+        self.assertFalse(_check_off_edge(dot, cross))
+
+
     def test_point_in_poly(self):
         # Convex U shape facing west
         vertices = np.array([[0, 0], [0, 2], [3, 2], [3, 0], [2, 0], [2, 1], [1, 1], [1, 0]])
         point1 = [1.5, 1.5]     # inside vertical area
         self.assertTrue(_point_in_poly(point1, vertices))
+        self.assertTrue(_point_in_poly(point1, vertices, 'wn_edge'))
+        self.assertTrue(_point_in_poly(point1, vertices, 'wn'))
         self.assertTrue(_point_in_poly(point1, vertices, 'rc'))
         self.assertTrue(_point_in_poly(point1, vertices, 'rc_vec'))
         self.assertTrue(_point_in_poly(point1, vertices, 'wn_vec'))
 
         point2 = [1.5, 0.5]     # outside between horizontal areas
         self.assertFalse(_point_in_poly(point2, vertices))
+        self.assertFalse(_point_in_poly(point2, vertices, 'wn_edge'))
+        self.assertFalse(_point_in_poly(point2, vertices, 'wn'))
         self.assertFalse(_point_in_poly(point2, vertices, 'rc'))
         self.assertFalse(_point_in_poly(point2, vertices, 'rc_vec'))
         self.assertFalse(_point_in_poly(point2, vertices, 'wn_vec'))
 
         point3 = [4, 2]         # outside above
         self.assertFalse(_point_in_poly(point3, vertices))
+        self.assertFalse(_point_in_poly(point3, vertices, 'wn_edge'))
+        self.assertFalse(_point_in_poly(point3, vertices, 'wn'))
         self.assertFalse(_point_in_poly(point3, vertices, 'rc'))
         self.assertFalse(_point_in_poly(point3, vertices, 'rc_vec'))
         self.assertFalse(_point_in_poly(point3, vertices, 'wn_vec'))
 
         point4 = [2.5, 0.5]     # inside top horizontal area
         self.assertTrue(_point_in_poly(point4, vertices))
+        self.assertTrue(_point_in_poly(point4, vertices, 'wn_edge'))
+        self.assertTrue(_point_in_poly(point4, vertices, 'wn'))
         self.assertTrue(_point_in_poly(point4, vertices, 'rc'))
         self.assertTrue(_point_in_poly(point4, vertices, 'rc_vec'))
         self.assertTrue(_point_in_poly(point4, vertices, 'wn_vec'))
