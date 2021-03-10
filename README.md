@@ -6,10 +6,19 @@
 geofencing` is a simple tool for checking whether a GPS coordinates is inside of a geo-fence. 
 Geo-fences can be generated using [Fence Editor](http://geo.jasparke.net/) and saved as json files. 
 
-The algorithm is based on the solutions to the classic point-in-polygon problem with modifications 
-to allow detection on the edge cases.
+The solutions to the classic point-in-polygon problem are implemented with one method modified 
+to allow detection for edge cases.
+
+The detection allows the choices of different implementations or algorithms:
+- 'rc': naive implementation of ray casting
+- 'wn': native implementation of winding number
+- 'rc_vectorized': vectorized implementation of ray casting
+- 'wn_vectorized': vectorized implementation of winding number
+- 'wn_edge': modified winding number allowing detection for edge cases.
 
 # Installation on Mac or Linux
+Dependency: Python3+, numpy
+
 Clone the repository to your local file system.
 ```bash
 $ git clone https://github.com/carlee0/geofencing.git
@@ -37,4 +46,7 @@ Verify the installation in a python console
 >>> fence = Fence()
 >>> fence.set_vertices_from_file('data/sics.json')
 >>> fence.detect(point)
+True
+>>>fence.detect(point, 'rc')
+True
 ```
