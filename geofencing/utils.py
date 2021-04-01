@@ -24,6 +24,7 @@ def _point_in_poly(point: list, vertices: list, algo="wn_edge"):
                  'wn_vec': _wn_vectorize,
                  'wn_edge': _wn_edge}
 
+    assert (algo in algo_dict), "Supported algorithms are 'rc', 'wn', 'rc_vec','wn_vec' and 'wn_edge'."
     return algo_dict[algo](point, vertices)
 
 

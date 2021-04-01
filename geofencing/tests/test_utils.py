@@ -155,6 +155,8 @@ class UtilsTest(unittest.TestCase):
         self.assertTrue(_point_in_poly(point4, vertices, 'rc_vec'))
         self.assertTrue(_point_in_poly(point4, vertices, 'wn_vec'))
 
+        self.assertRaises(AssertionError, lambda: _point_in_poly(point4, vertices, 'fake_algo'))
+
     def test_import_file(self):
         # TODO: mock the input files
         name, vertices = _import_file("./data/SICS.txt")
