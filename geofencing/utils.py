@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 
 
-def _point_in_poly(point: list, vertices: list, algo="wc_edge"):
+def _point_in_poly(point: list, vertices: list, algo="wn_edge"):
     """ determine if a point is in the polygon
 
     Args:
@@ -18,16 +18,13 @@ def _point_in_poly(point: list, vertices: list, algo="wc_edge"):
     Returns:
         True if the point is inside of the polygon, boundary points undefined
     """
-    if algo == 'rc':
-        return _rc_point_in_poly(point, vertices)
-    if algo == 'wc':
-        return _wn_point_in_poly(point, vertices)
-    if algo == 'rc_vec':
-        return _rc_vectorize(point, vertices)
-    if algo == 'wn_vec':
-        return _wn_vectorize(point, vertices)
-    else:
-        return _wn_edge(point, vertices)
+    algo_dict = {'rc': _rc_point_in_poly,
+                 'wn': _wn_point_in_poly,
+                 'rc_vec': _rc_vectorize,
+                 'wn_vec': _wn_vectorize,
+                 'wn_edge': _wn_edge}
+
+    return algo_dict[algo](point, vertices)
 
 
 def _wn_point_in_poly(point: list, vertices: list):
