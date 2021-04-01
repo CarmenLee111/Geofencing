@@ -98,10 +98,13 @@ def _rc_point_in_poly(point: list, vertices: list):
     j = n - 1
     lat, lon = point
 
-    for i in range(n):
-        if ((vertices[i][0] < lat <= vertices[j][0]
+    def is_valid_crossing(lat):
+        return ((vertices[i][0] < lat <= vertices[j][0]
              or vertices[j][0] < lat <= vertices[i][0])
-                and (vertices[i][1] <= lon or vertices[j][1] <= lon)):
+                and (vertices[i][1] <= lon or vertices[j][1] <= lon))
+
+    for i in range(n):
+        if is_valid_crossing(lat):
             k = (lat - vertices[i][0]) / (vertices[j][0] - vertices[i][0])
             inside ^= (vertices[i][1] + k * (vertices[j][1] - vertices[i][1]) < lon)
         j = i
@@ -123,7 +126,7 @@ def _rc_vectorize(point: list, vertices: list):
 
     indicators = (dyi * dyj > 0) * (
             point[0] < (xi + (point[1] - yi) * np.true_divide(
-        (xj - xi), (yj - yi), where=((yj - yi)) != 0)))
+        (xj - xi), (yj - yi), where=(yj - yi) != 0)))
 
     inside ^= np.logical_xor.reduce(indicators)
     return inside
