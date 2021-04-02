@@ -7,9 +7,17 @@ class Detector(object):
 
     def __init__(self, alg=None):
         if alg is None:
-            self.algo = "wn_edge"
+            self._algo = "wn_edge"
         else:
-            self.algo = alg
+            self._algo = alg
+
+    @property
+    def algo(self):
+        return self._algo
+
+    @algo.setter
+    def algo(self, alg):
+        self._algo = alg
 
     def detect(self, point: list, vertices: list):
         _point_in_poly(point, vertices, self.algo)
