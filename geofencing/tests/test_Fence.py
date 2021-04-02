@@ -35,7 +35,7 @@ class FenceTest(unittest.TestCase):
         self.assertEqual('name', fence.site)
         self.assertEqual('someList', fence.vertices)
 
-    @patch('geofencing.fence._point_in_poly', return_value=None)
+    @patch('geofencing.fence.Detector.detect', return_value=None)
     def test_detect(self, mock_poly):
         fence = Fence(self.vs)
         point1 = [1, 0.5]

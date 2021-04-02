@@ -3,6 +3,18 @@ import numpy as np
 from pathlib import Path
 
 
+class Detector(object):
+
+    def __init__(self, alg=None):
+        if alg is None:
+            self.algo = "wn_edge"
+        else:
+            self.algo = alg
+
+    def detect(self, point: list, vertices: list):
+        _point_in_poly(point, vertices, self.algo)
+
+
 def _point_in_poly(point: list, vertices: list, algo="wn_edge"):
     """ determine if a point is in the polygon
 

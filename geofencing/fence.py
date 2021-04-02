@@ -1,4 +1,4 @@
-from .utils import _point_in_poly, _import_file
+from .utils import Detector, _import_file
 import numpy as np
 
 
@@ -20,6 +20,7 @@ class Fence(object):
         self._vertices = []
         if vs:
             self.vertices = vs
+        self.detector = Detector()
 
     @property
     def site(self):
@@ -43,4 +44,4 @@ class Fence(object):
 
     def detect(self, point: list, algo=None):
         assert len(point) == 2, "coordinates must be latitude, longitude"
-        return _point_in_poly(point, self.vertices, algo)
+        return self.detector.detect(point, self.vertices, algo)
