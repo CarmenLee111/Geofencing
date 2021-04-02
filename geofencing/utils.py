@@ -206,13 +206,13 @@ def _import_file(file_path: str):
         with open(file_path) as file:
             if Path(file_path).suffix == '.json':
                 data = json.load(file)[0]
-                return data.get('name'), data.get('path')
+                return data.get('name'), np.array(data.get('path'))
             elif Path(file_path).suffix == '.txt':
                 lines = file.readlines()
                 vertices = []
                 for line in lines:
                     vertices.append([float(x) for x in line.strip().split(',')])
-                return "site", vertices
+                return "site", np.array(vertices)
             else:
                 raise ValueError("File type not supported")
     except FileNotFoundError:

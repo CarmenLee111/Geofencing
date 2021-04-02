@@ -161,13 +161,13 @@ class UtilsTest(unittest.TestCase):
         # TODO: mock the input files
         name, vertices = _import_file("./data/SICS.txt")
         self.assertEqual("site", name)
-        self.assertTrue(type(vertices) == list)
+        self.assertTrue(type(vertices) == np.ndarray)
         self.assertTrue(len(vertices) > 0)
 
         name1, vertices1 = _import_file("./data/sics.json")
         self.assertTrue(type(name1) == str)
         self.assertTrue(name1 == 'sics')
-        self.assertTrue(type(vertices1) == list)
+        self.assertTrue(type(vertices1) == np.ndarray)
         self.assertTrue(len(vertices1) > 0)
 
         self.assertRaises(FileNotFoundError, lambda: _import_file("/path-not-exist"))

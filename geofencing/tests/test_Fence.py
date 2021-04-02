@@ -12,8 +12,6 @@ class FenceTest(unittest.TestCase):
         fence = Fence(self.vs)
         self.assertIsInstance(Fence(), type(fence))
         self.assertRaises(AssertionError, lambda: Fence([[1, 2], [3, 4]]))
-        # TODO: total length count, must be even
-        # self.assertRaises(AssertionError, lambda: Fence([[1, 2], [3, 4], [5, 6], [7]]))
 
     def test_name(self):
         fence = Fence()
@@ -26,7 +24,7 @@ class FenceTest(unittest.TestCase):
 
     def test_set_vertices(self):
         fence = Fence(self.vs)
-        vs2 = np.array([1, 1, 2, 0, 0, 0])
+        vs2 = np.array([[1, 1], [2, 0], [0, 0]])
         fence.vertices = vs2
         self.assertTrue(np.array_equal(fence.vertices, vs2))
 
